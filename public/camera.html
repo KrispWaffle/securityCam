@@ -10,13 +10,12 @@
   <video id="localVideo" autoplay playsinline muted></video>
 
   <script>
- const ws = new WebSocket("wss://your-signaling-server.com");
-const peerConnection = new RTCPeerConnection({
-  iceServers: [{ urls: "stun:stun.l.google.com:19302" }]
-});
+    const localVideo = document.getElementById('localVideo');
+    const ws = new WebSocket('wss://securitycambe.onrender.com');
+    let peerConnection;
 
-// Get camera stream
-const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+    async function startCamera() {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
 stream.getTracks().forEach(track => peerConnection.addTrack(track, stream));
 
 peerConnection.onicecandidate = event => {
@@ -38,7 +37,9 @@ ws.onmessage = async (message) => {
     await peerConnection.addIceCandidate(new RTCIceCandidate(data.candidate));
   }
 };
+    };
 
+    startCamera();
   </script>
 </body>
 </html>
