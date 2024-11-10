@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Camera Stream</title>
+</head>
+<body>
+  <h1>Camera Stream</h1>
+  <video id="localVideo" autoplay playsinline muted></video>
+
+  <script>
+    const localVideo = document.getElementById('localVideo');
+    const ws = new WebSocket('ws://localhost:3000');
+    let peerConnection;
+
+    async function startCamera() {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      localVideo.srcObject = stream;
+
+      peerConnection = new RTCPeerConnection();
+      stream.getTracks().forEach(track => peerConnection.addTrack(track, stream));
+
+      peerConnection.onicecandidate = event => {
+        if (event.candidate) {
+          ws.send(JSON.stringify({ candidate: event.candidate }));
+        }
+      };
+
+      const offer = await peerConnection.createOffer();
+      await peerConnection.setLocalDescription(offer);
+      ws.send(JSON.stringify({ offer }));
+    }
+
+    ws.onmessage = async (message) => {
+      const data = JSON.parse(message.data);
+      
+      if (data.answer) {
+        await peerConnection.setRemoteDescription(new RTCSessionDescription(data.answer));
+      } else if (data.candidate) {
+        await peerConnection.addIceCandidate(new RTCIceCandidate(data.candidate));
+      }
+    };
+
+    startCamera();
+  </script>
+</body>
+</html>
