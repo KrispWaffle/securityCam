@@ -1,8 +1,0 @@
-{
-    "public": "public",
-    "rewrites": [
-      { "source": "/camera", "destination": "/camera.html" },
-      { "source": "/viewer", "destination": "/viewer.html" }
-    ]
-  }
-  
