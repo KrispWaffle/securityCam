@@ -19,16 +19,22 @@
     let peerConnection;
 
     ws.onmessage = async (message) => {
+  // Check if message is a Blob and handle it if necessary
+  if (typeof message.data === "string") {
+    try {
       const data = JSON.parse(message.data);
+      console.log("Received JSON message:", data);
 
       if (data.offer) {
-        peerConnection = new RTCPeerConnection();
+        peerConnection = new RTCPeerConnection({
+          iceServers: [{ urls: "stun:stun.l.google.com:19302" }]
+        });
 
         peerConnection.ontrack = (event) => {
           remoteVideo.srcObject = event.streams[0];
         };
 
-        peerConnection.onicecandidate = event => {
+        peerConnection.onicecandidate = (event) => {
           if (event.candidate) {
             ws.send(JSON.stringify({ candidate: event.candidate }));
           }
@@ -41,7 +47,14 @@
       } else if (data.candidate) {
         await peerConnection.addIceCandidate(new RTCIceCandidate(data.candidate));
       }
-    };
+    } catch (error) {
+      console.error("Error parsing message as JSON:", error);
+    }
+  } else {
+    console.warn("Received non-JSON message. Ignoring:", message.data);
+  }
+};
+
   </script>
 </body>
 </html>
