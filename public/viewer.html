@@ -11,7 +11,7 @@
 
   <script>
     const remoteVideo = document.getElementById('remoteVideo');
-    const ws = new WebSocket('ws://localhost:3000');
+    const ws = new WebSocket('wss://securitycambe.onrender.com');
     let peerConnection;
 
     ws.onmessage = async (message) => {

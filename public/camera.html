@@ -11,7 +11,7 @@
 
   <script>
     const localVideo = document.getElementById('localVideo');
-    const ws = new WebSocket('ws://localhost:3000');
+    const ws = new WebSocket('wss://securitycambe.onrender.com');
     let peerConnection;
 
     async function startCamera() {
